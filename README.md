@@ -101,7 +101,6 @@ GSM378022	3	48603	8994748	1469	0.0544
 - peaks.tsv : a tab seperated table shows the determined signal peaks and their relative DNA levels comparing to the baseline.
 
 
-
 ## Troubleshooting
 
 ### Error of matplotlib in conda environment
