@@ -1,7 +1,7 @@
-# Mecan4CNA (Minimum Error Calibration and Normalization for Copy Number Analysis)
+# Mecan4CNA 
 Due to sample impurity and measurement bias, a copy number profile usually needs to be calibrated for the position of baseline (normal copy numbers) and DNA levels. Because each profile usually has different signal scale, it's also important to normalize profiles in comparitive analysis. 
 
-Mecan4CNA uses an algebraic method to estimate the baseline and the distance between DNA levels (refered as level distance). It can be used for both single file analysis and multi-file normalization.
+Mecan4CNA (Minimum Error Calibration and Normalization for Copy Number Analysis) uses an algebraic method to estimate the baseline and the distance between DNA levels (refered as level distance). It can be used for both single file analysis and multi-file normalization.
  
 Key features:
 
@@ -93,7 +93,7 @@ GSM378022	3	48603	8994748	1469	0.0544
 
 ### Output files
 
-4 files will be created in the output path. If the mecan fails to detect anything, only 1 file will be created:
+4 files will be created in the output path. If the mecan fails to detect anything (not enough aberrant segments or no valid models), only the histogram will be created:
 
 - baseNdistance.txt : contains the estimated baseline and level distance.
 - histogram.pdf : a visual illustration of signal distributions.

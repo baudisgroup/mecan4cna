@@ -125,7 +125,7 @@ class mecan:
 
             if self.outpath:
                 try:
-                    plt.savefig(os.path.join(self.outpath, 'histogram.png'), bbox_inches='tight')
+                    plt.savefig(os.path.join(self.outpath, 'histogram.pdf'), bbox_inches='tight')
                 except Exception as e:
                     print(e)
             if plot:
@@ -143,10 +143,10 @@ class mecan:
 
     def levelScore(self, peaks, base, thresh ):
         levels = peaks.loc[:,['bin', 'value']]
-        levels['R_level'] = round((levels['bin'] - base) / abs(base-thresh)).astype(int)
-        dup_sum = sum(levels[levels.R_level >0].R_level.drop_duplicates())
-        del_sum = sum(levels[levels.R_level <0].R_level.drop_duplicates())
-        # return [sum(levels.R_level), dup_sum, del_sum]
+        levels['relative_level'] = round((levels['bin'] - base) / abs(base-thresh)).astype(int)
+        dup_sum = sum(levels[levels.relative_level >0].relative_level.drop_duplicates())
+        del_sum = sum(levels[levels.relative_level <0].relative_level.drop_duplicates())
+        # return [sum(levels.relative_level), dup_sum, del_sum]
         return [dup_sum+del_sum, dup_sum, del_sum]
 
 
@@ -528,20 +528,20 @@ class mecan:
             thresh = self.determineThresh(models)
             
             levels = peaks.loc[:,['bin', 'value']]
-            levels['R_level'] = round((levels['bin'] - base_bin) / thresh).astype(int)
+            levels['relative_level'] = round((levels['bin'] - base_bin) / thresh).astype(int)
             
             if self.verbose:
                 print(peaks)
                 print(models)
                 # print('Base table:\n {}'.format(basedf))
-                print("Base: {}".format(base_bin))
-                print('Thresh: {}'.format(thresh))
+                print("Baseline: {}".format(base_bin))
+                print('Level distance: {}'.format(thresh))
 
             if self.outpath:
-                with open(os.path.join(self.outpath, 'base_thresh.txt'), 'w') as fo:
+                with open(os.path.join(self.outpath, 'baseNlevel.txt'), 'w') as fo:
                     # print('Interval with minimum Σe:\t{}'.format(base_candidates), file=fo)
-                    print('Suggested baseline:\t{}'.format(base_bin), file=fo)
-                    print('Suggested thresh:\t{}'.format(thresh), file=fo)
+                    print('Estimated baseline:\t{}'.format(base_bin), file=fo)
+                    print('Estimated level distance:\t{}'.format(thresh), file=fo)
 
                 models.to_csv(os.path.join(self.outpath, 'models.tsv'), sep='\t', index=False, float_format='%.4f')
                 # basedf.to_csv(os.path.join(self.outpath, 'candidates.tsv'), sep='\t', index=False, float_format='%.2f')
