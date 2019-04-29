@@ -61,7 +61,7 @@ class mecan:
     # Hard coded varaiables
     # intervals = 4, 0 - 5 copies
     # probe_thresh = 3, minimumn number of probes of a segment
-    def computePeaks(self, segments, bins_per_interval=None, plot=False):
+    def computePeaks(self, segments, bins_per_interval=None, plot=False, saveplot=False):
 
         if bins_per_interval is None:
             bins_per_interval = self.bins_per_interval
@@ -111,10 +111,9 @@ class mecan:
         peaks_value = [segbin[i] for i in peaks_index]
         peaks_bin = [bin_scales[i] for i in peaks_index]
         
-        
 
         # plot
-        if plot or self.outpath:
+        if plot or saveplot:
             plt.figure(figsize=(30,5))
             plt.xticks(rotation=70)
             plt.bar(bin_scales, segbin, width=bin_size/2, tick_label= np.round(bin_scales, 2))
@@ -123,7 +122,7 @@ class mecan:
             plt.xlabel('Virtual Copy Number Levels')
             plt.ylabel('Number of Probes')
 
-            if self.outpath:
+            if saveplot:
                 try:
                     plt.savefig(os.path.join(self.outpath, 'histogram.pdf'), bbox_inches='tight')
                 except Exception as e:
@@ -511,7 +510,7 @@ class mecan:
 
     # main
     def run(self, segments):
-        peaks = self.computePeaks(segments, plot=self.plot)
+        peaks = self.computePeaks(segments, plot=self.plot, saveplot=self.outpath)
         if len(peaks) >1:
             models = self.integrateScores(segments)
             models = models.round(6)
