@@ -34,7 +34,7 @@ mecan4can -i [SEGMENT_FILE] -o [OUTPUT_PATH]
 mecan4can --demo
 ```
 
-This will copy a few example files to the current directory and run with default settings. It actually invokes the ```run_mecan``` script, which will also be copied over and can be used as a template for customized analysis.
+This will copy 5 example files to the current directory and run with default settings. It invokes the ```run_mecan_example.sh``` script, which will also be copied over and can be used as a template for customized analysis.
 
 ### General Usage
 ```
@@ -103,9 +103,9 @@ GSM378022	3	48603	8994748	1469	0.0544
 
 ## Common problems
 
-### Error of matplotlib in conda environment
+### Error of matplotlib
 
-If you run into this prolbem, simply re-install matplotlib with:
-```
-conda install -n YOURENV matplotlib
-```
+It seems there is a bug in the lastest version (3.0+) of matplotlib, which will cause problems in OSX. Mecan uses a older verison of matplotlib (2.0.2) to avoid this problem. If you need to use the latest version and run into runtime problems, please check the following links.
+
+- [matplotlib documentation](https://matplotlib.org/faq/osx_framework.html)
+- [matplotlib github discussion](https://github.com/matplotlib/matplotlib/issues/13414)

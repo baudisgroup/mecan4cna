@@ -5,7 +5,7 @@ def readme():
         return f.read()
 
 setup(name = 'mecan4cna',
-     version = '0.17',
+     version = '0.20',
      description = 'Minimum Error Calibration and Normalization for Copy Number Analysis',
      long_description = readme(),
      license = 'MIT',
@@ -25,7 +25,7 @@ setup(name = 'mecan4cna',
         'click',
         'pandas',
         'numpy',
-        'matplotlib'
+        'matplotlib==2.0.2'
         ],
     python_requires = '>=3.6',
     entry_points = {

@@ -537,7 +537,7 @@ class mecan:
                 print('Level distance: {}'.format(thresh))
 
             if self.outpath:
-                with open(os.path.join(self.outpath, 'baseNlevel.txt'), 'w') as fo:
+                with open(os.path.join(self.outpath, 'base_level.txt'), 'w') as fo:
                     # print('Interval with minimum Σe:\t{}'.format(base_candidates), file=fo)
                     print('Estimated baseline:\t{}'.format(base_bin), file=fo)
                     print('Estimated level distance:\t{}'.format(thresh), file=fo)

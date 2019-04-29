@@ -18,6 +18,8 @@ Options:
                                   The number of bins in each copy number
                                   interval.
   -v, --intervals INTEGER RANGE   The number of copy number intervals.
+  --demo                          Copy example files and run a demo script in
+                                  the current directry.
   -pt, --peak_thresh INTEGER RANGE
                                   The minimum probes of a peak.
   -st, --segment_thresh INTEGER RANGE
@@ -32,7 +34,7 @@ Options:
   --info_lost_ratio_thresh FLOAT  The threshold of information lost ratio.
   --info_lost_range_low FLOAT     The low end of information lost range.
   --info_lost_range_high FLOAT    The high end of information lost range.
-  --help                          Show this message and exit.
+  --help                          Show this message and exit.                        Show this message and exit.
 ```
 
 ## Required options
@@ -105,6 +107,12 @@ A threshold for the minimum number of probes a signal peak should have. Default 
 -st, --segment_thresh INTEGER RANGE
 ```
 A threshold for the minimum number of probes segment should have. Default value is 3. This paramter can remove nosiy signals and reduce computation time. 
+
+### demo 
+```
+--demo 
+```
+A flag option, when specified, it will copy 5 example files to the current directory and run with default settings. It invokes the ```run_mecan_example.sh``` script, which will also be copied over and can be used as a template for customized analysis.
 
 
 ## Advanced parameters

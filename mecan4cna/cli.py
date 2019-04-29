@@ -40,7 +40,7 @@ def cli(input_file,output_path,plot,bins_per_interval,intervals,peak_thresh,segm
             print('Copied examples to {}'.format(os.path.abspath(example_path)))
             print('Copied script to {}'.format(os.path.abspath('.')))
 
-        subprocess.run(['sh',script_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        subprocess.run(['sh',script_name], stdout=sys.stdout, stderr=sys.stderr)
         exit()
     
 

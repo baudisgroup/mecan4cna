@@ -1,0 +1,3 @@
+include LICENSE
+recursive-include mecan4cna/examples *
+include mecan4cna/run_mecan_example.sh
