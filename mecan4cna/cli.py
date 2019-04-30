@@ -8,9 +8,16 @@ from distutils.dir_util import copy_tree
 from shutil import copyfile
 import subprocess
 
+##############################
+### Command line interface ###
+##############################
+
+
+# using the Click package
 @click.command()
 @click.option('-i', '--input_file', type=click.File('r'), help='The input file.')
 @click.option('-o', '--output_path', help='The path for output files.')
+@click.option('-n', '--normalize', is_flag=True, help='Calibrate and normalize the input file.')
 @click.option('-p', '--plot', is_flag=True, default=False, help='Whether to show the signal histogram.')
 @click.option('-b', '--bins_per_interval', type=click.IntRange(1,None), default=20, help='The number of bins in each copy number interval.')
 @click.option('-v', '--intervals', type=click.IntRange(1,None), default=4, help='The number of copy number intervals.')
@@ -25,10 +32,12 @@ import subprocess
 @click.option('--info_lost_ratio_thresh', type=click.FLOAT, default=0.3, help='The threshold of information lost ratio.')
 @click.option('--info_lost_range_low', type=click.FLOAT, default=0.2, help='The low end of information lost range.')
 @click.option('--info_lost_range_high', type=click.FLOAT, default=0.8, help='The high end of information lost range.')
+@click.option('--ld_scaler', type=click.FLOAT, default=0.8, help='The scaler of level distance in normalization.')
 def cli(input_file,output_path,plot,bins_per_interval,intervals,peak_thresh,segment_thresh,model_steps,mpd_coef,max_level_distance,min_level_distance,
-        min_model_score, info_lost_ratio_thresh, info_lost_range_low,info_lost_range_high, demo ):
+        min_model_score, info_lost_ratio_thresh, info_lost_range_low,info_lost_range_high, demo, normalize, ld_scaler ):
     
 
+    # run a demostration
     if demo:
         example_path = 'examples'
         script_name = 'run_mecan_example.sh'
@@ -44,6 +53,7 @@ def cli(input_file,output_path,plot,bins_per_interval,intervals,peak_thresh,segm
         exit()
     
 
+    # check input & output
     if input_file:
         segments = comm.file2list(input_file)
     else:
@@ -56,11 +66,20 @@ def cli(input_file,output_path,plot,bins_per_interval,intervals,peak_thresh,segm
 
 
 
-    r = alg.mecan(bins_per_interval=bins_per_interval, intervals=intervals, interval_step=model_steps, minprobes=peak_thresh,
-        probe_thresh=segment_thresh, mpd_coef=mpd_coef, outpath=output_path, plot=plot, thresh_min=min_level_distance, thresh_max=max_level_distance, 
-        minlevel=min_model_score, neglect_level_cap_high= info_lost_range_high, neglect_level_cap_low=info_lost_range_low, neglect_thresh=info_lost_ratio_thresh)
+    # a mecan instance
+    r = alg.mecan(bins_per_interval=bins_per_interval, intervals=intervals, interval_step=model_steps, peak_thresh=peak_thresh,
+        segment_thresh=segment_thresh, mpd_coef=mpd_coef, output_path=output_path, plot=plot, min_level_distance=min_level_distance, max_level_distance=max_level_distance, 
+        min_model_score=min_model_score, info_lost_range_high= info_lost_range_high, info_lost_range_low=info_lost_range_low, info_lost_ratio_thresh=info_lost_ratio_thresh)
 
+    # estimate baseline and level distance, also return models
     res = r.run(segments)
+
+    # calibration and normalization
+    if normalize:
+        if len(res) >1:
+            baseline = res[0]
+            level_distance = res[1]
+            comm.normalize(segments, baseline, level_distance, output_path, ld_scaler)
 
 def main():
     try:

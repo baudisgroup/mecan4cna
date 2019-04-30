@@ -1,7 +1,6 @@
 
 # coding: utf-8
 
-# In[1]:
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
@@ -11,29 +10,31 @@ import math
 import numpy as np
 import pandas as pd
 
-
+##################################
+### Mecan class and algorithms ###
+##################################
 
 class mecan:
-    def __init__(self, bins_per_interval=20, intervals=4, interval_step=2,  minprobes=1000, probe_thresh=3, mpd_coef=0.1,
-     outpath=None, plot=False, verbose=False, ranking_method='ass', thresh_min=0.3, thresh_max=1.3, minlevel=9,
-     neglect_level_cap_high = 0.8, neglect_level_cap_low = 0.2, neglect_thresh = 0.3 ):
+    def __init__(self, bins_per_interval=20, intervals=4, interval_step=2,  peak_thresh=1000, segment_thresh=3, mpd_coef=0.1,
+     output_path=None, plot=False, verbose=False, ranking_method='ass', min_level_distance=0.3, max_level_distance=1.3, min_model_score=9,
+     info_lost_range_high = 0.8, info_lost_range_low = 0.2, info_lost_ratio_thresh = 0.3 ):
 
         self.bins_per_interval = bins_per_interval
         self.intervals = intervals
         self.interval_step = interval_step
-        self.minprobes = minprobes
-        self.probe_thresh  = probe_thresh
+        self.peak_thresh = peak_thresh
+        self.segment_thresh  = segment_thresh
         self.mpd_coef = mpd_coef
-        self.outpath = outpath
+        self.output_path = output_path
         self.plot = plot
         self.verbose = verbose
         self.ranking_method = ranking_method
-        self.thresh_min=thresh_min
-        self.thresh_max=thresh_max
-        self.minlevel = minlevel
-        self.neglect_level_cap_high = neglect_level_cap_high
-        self.neglect_level_cap_low = neglect_level_cap_low
-        self.neglect_thresh = neglect_thresh
+        self.min_level_distance=min_level_distance
+        self.max_level_distance=max_level_distance
+        self.min_model_score = min_model_score
+        self.info_lost_range_high = info_lost_range_high
+        self.info_lost_range_low = info_lost_range_low
+        self.info_lost_ratio_thresh = info_lost_ratio_thresh
         self.total_probes = 0
 
 
@@ -52,7 +53,7 @@ class mecan:
     # segment: the input segments, a list of dictionary. keys: chrom, start, end, probes, value
     # bins_per_interval: the number of bins between two level intervals, default=20
     # plot: wheather to generate histogram, default=False
-    # minprobes: the minimumn number of probes a bin must have in order to be counted. default=500
+    # peak_thresh: the minimumn number of probes a bin must have in order to be counted. default=500
     #
     #### Returns ####
     # A dataframe of peaks, columns: value(totoal probe counts), bin(CN level)
@@ -60,7 +61,7 @@ class mecan:
     #### Misc ####
     # Hard coded varaiables
     # intervals = 4, 0 - 5 copies
-    # probe_thresh = 3, minimumn number of probes of a segment
+    # segment_thresh = 3, minimumn number of probes of a segment
     def computePeaks(self, segments, bins_per_interval=None, plot=False, saveplot=False):
 
         if bins_per_interval is None:
@@ -80,7 +81,7 @@ class mecan:
             probes = int(seg['probes'])
 
             # drop segments with too few probes
-            if probes >self.probe_thresh:
+            if probes >self.segment_thresh:
                 # take the log10 of probes as the weight value to put into bins
     #             weighted = np.log(probes) 
                 weighted = probes
@@ -97,7 +98,7 @@ class mecan:
                     
         # filter by number of probes
         for i in range(len(segbin)):
-            if segbin[i] < self.minprobes:
+            if segbin[i] < self.peak_thresh:
                 segbin[i] = 0
 
         #####  peak calculation ####
@@ -124,7 +125,7 @@ class mecan:
 
             if saveplot:
                 try:
-                    plt.savefig(os.path.join(self.outpath, 'histogram.pdf'), bbox_inches='tight')
+                    plt.savefig(os.path.join(self.output_path, 'histogram.pdf'), bbox_inches='tight')
                 except Exception as e:
                     print(e)
             if plot:
@@ -185,7 +186,7 @@ class mecan:
     #     off_sum = sum(df['scaled_off'])
     #     off_sum = off_sum * (df.loc)
         
-        df_neg = df[(df.cn < self.neglect_level_cap_high) & (df.cn > self.neglect_level_cap_low)]
+        df_neg = df[(df.cn < self.info_lost_range_high) & (df.cn > self.info_lost_range_low)]
 
 
         if showtable:
@@ -354,10 +355,10 @@ class mecan:
         # df_models = df_models.drop_duplicates(subset='rank').reset_index(drop=True)
 
         # df_models['dist'] = abs(df_models.base_bin - df_models.thresh_bin)
-        # if len(df_models[(df_models.dist >=self.thresh_min) & 
-        #     (df_models.dist <= self.thresh_max)]) >0:
-        #     df_models = df_models[(df_models.dist >=self.thresh_min) & 
-        #     (df_models.dist <= self.thresh_max)]
+        # if len(df_models[(df_models.dist >=self.min_level_distance) & 
+        #     (df_models.dist <= self.max_level_distance)]) >0:
+        #     df_models = df_models[(df_models.dist >=self.min_level_distance) & 
+        #     (df_models.dist <= self.max_level_distance)]
         
         return df_models
 
@@ -371,8 +372,8 @@ class mecan:
         level_mean = np.mean(df_models.levelScore)
         level_std = np.std(df_models.levelScore)
         level_thresh = max(abs(level_mean - level_std), abs(level_mean + level_std))
-        if level_thresh < self.minlevel:
-            level_thresh = self.minlevel
+        if level_thresh < self.min_model_score:
+            level_thresh = self.min_model_score
         df_models = df_models[(abs(df_models.levelScore) <= level_thresh) ]
 
 
@@ -382,15 +383,15 @@ class mecan:
 
         # filter by neglects ratio
         df_models['neglects_ratio'] = df_models.neglects / self.total_probes
-        df_models = df_models[df_models.neglects_ratio < self.neglect_thresh]
+        df_models = df_models[df_models.neglects_ratio < self.info_lost_ratio_thresh]
 
 
         # filter by thresh distance
         df_models['dist'] = abs(df_models.base_bin - df_models.thresh_bin)
-        if len(df_models[(df_models.dist >=self.thresh_min) & 
-            (df_models.dist <= self.thresh_max)]) >0:
-            df_models = df_models[(df_models.dist >=self.thresh_min) & 
-            (df_models.dist <= self.thresh_max)]
+        if len(df_models[(df_models.dist >=self.min_level_distance) & 
+            (df_models.dist <= self.max_level_distance)]) >0:
+            df_models = df_models[(df_models.dist >=self.min_level_distance) & 
+            (df_models.dist <= self.max_level_distance)]
 
 
             
@@ -476,8 +477,8 @@ class mecan:
             level_mean = np.mean(models.levelScore)
             level_std = np.std(models.levelScore)
             level_thresh = max(abs(level_mean - level_std), abs(level_mean + level_std))
-            if level_thresh < self.minlevel:
-                level_thresh = self.minlevel
+            if level_thresh < self.min_model_score:
+                level_thresh = self.min_model_score
 
             ref_level = max(level_thresh - models.loc[0,'levelScore'], level_thresh - models.loc[1,'levelScore'] )
             base_scores[models.loc[0,'base_bin']]['level_score'] = (level_thresh - models.loc[0,'levelScore']) / ref_level
@@ -508,9 +509,9 @@ class mecan:
 
         return baseline, df_bscores
 
-    # main
+    # main entrance
     def run(self, segments):
-        peaks = self.computePeaks(segments, plot=self.plot, saveplot=self.outpath)
+        peaks = self.computePeaks(segments, plot=self.plot, saveplot=self.output_path)
         if len(peaks) >1:
             models = self.integrateScores(segments)
             models = models.round(6)
@@ -536,15 +537,15 @@ class mecan:
                 print("Baseline: {}".format(base_bin))
                 print('Level distance: {}'.format(thresh))
 
-            if self.outpath:
-                with open(os.path.join(self.outpath, 'base_level.txt'), 'w') as fo:
+            if self.output_path:
+                with open(os.path.join(self.output_path, 'base_level.txt'), 'w') as fo:
                     # print('Interval with minimum Σe:\t{}'.format(base_candidates), file=fo)
                     print('Estimated baseline:\t{}'.format(base_bin), file=fo)
                     print('Estimated level distance:\t{}'.format(thresh), file=fo)
 
-                models.to_csv(os.path.join(self.outpath, 'models.tsv'), sep='\t', index=False, float_format='%.4f')
-                # basedf.to_csv(os.path.join(self.outpath, 'candidates.tsv'), sep='\t', index=False, float_format='%.2f')
-                levels.to_csv(os.path.join(self.outpath, 'peaks.tsv'), sep='\t', index=False, float_format='%.2f')
+                models.to_csv(os.path.join(self.output_path, 'models.tsv'), sep='\t', index=False, float_format='%.4f')
+                # basedf.to_csv(os.path.join(self.output_path, 'candidates.tsv'), sep='\t', index=False, float_format='%.2f')
+                levels.to_csv(os.path.join(self.output_path, 'peaks.tsv'), sep='\t', index=False, float_format='%.2f')
 
 
             return (base_bin, thresh, models, best_vote, levels)

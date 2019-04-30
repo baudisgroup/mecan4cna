@@ -1,6 +1,13 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import os
+
+
+########################
+### Common functions ###
+########################
+
 
 # Return: mean, weighted mean and median
 def medianValue(segment):
@@ -110,6 +117,7 @@ def plotChrom(segments, chrom, filepath=None, probe_thresh=3):
         plt.show()
     return chros[chrom]
 
+# generate list of segments from a segmentation file (handler)
 def file2list(fin):
     ls = []
 
@@ -119,4 +127,26 @@ def file2list(fin):
         ls.append({'chro':str(line[1]), 'start':int(line[2]), 'end':int(line[3]), 'probes':int(line[4]),'value':float(line[5])})
             
     return ls
+
+# calibrate and normalize the input segments
+def normalize(segments, baseline, level_distance, outpath, scaler=0.8):
+    offset = baseline -2
+    level_distance = level_distance * scaler
+    outpath = os.path.join(outpath, 'normalized.tsv')
+    with open(outpath, 'w') as fo:
+        print('{}\t{}\t{}\t{}\t{}'.format('chromosome', 'start','end', 'probes', 'value'), file=fo)
+        for cna in segments:
+            sig = 2**cna['value'] * 2
+            sig = abs(sig + offset)
+            sig = ( (sig-2)/level_distance ) + 2
+            if sig <= 0:
+                sig = 0.1
+            value = round(np.log2(sig/2), 4)
+            
+            print('{}\t{}\t{}\t{}\t{}'.format(cna['chro'], cna['start'],cna['end'], cna['probes'], value), file=fo)
+
+
+
+
+
             

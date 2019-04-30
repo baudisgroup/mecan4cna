@@ -5,11 +5,11 @@ def readme():
         return f.read()
 
 setup(name = 'mecan4cna',
-     version = '0.20',
+     version = '0.22',
      description = 'Minimum Error Calibration and Normalization for Copy Number Analysis',
      long_description = readme(),
      license = 'MIT',
-     url='https://github.com/baudisgroup/segment-liftover',
+     url='https://github.com/baudisgroup/mecan4cna',
      author = 'Bo Gao',
      author_email = 'kaye_gao@hotmail.com',
      classifiers=[
