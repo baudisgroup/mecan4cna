@@ -17,8 +17,8 @@ import subprocess
 @click.command()
 @click.option('-i', '--input_file', type=click.File('r'), help='The input file.')
 @click.option('-o', '--output_path', help='The path for output files.')
-@click.option('-n', '--normalize', is_flag=True, help='Calibrate and normalize the input file.')
-@click.option('-p', '--plot', is_flag=True, default=False, help='Whether to show the signal histogram.')
+@click.option('-n', '--normalize', is_flag=True, default=False, help='Calibrate and normalize the input file.')
+@click.option('-p', '--plot', is_flag=True, default=False, help='Whether to save the signal histogram.')
 @click.option('-b', '--bins_per_interval', type=click.IntRange(1,None), default=20, help='The number of bins in each copy number interval.')
 @click.option('-v', '--intervals', type=click.IntRange(1,None), default=4, help='The number of copy number intervals.')
 @click.option('--demo', is_flag=True, help='Copy example files and run a demo script in the current directory.')
@@ -68,7 +68,7 @@ def cli(input_file,output_path,plot,bins_per_interval,intervals,peak_thresh,segm
 
     # a mecan instance
     r = alg.mecan(bins_per_interval=bins_per_interval, intervals=intervals, interval_step=model_steps, peak_thresh=peak_thresh,
-        segment_thresh=segment_thresh, mpd_coef=mpd_coef, output_path=output_path, plot=plot, min_level_distance=min_level_distance, max_level_distance=max_level_distance, 
+        segment_thresh=segment_thresh, mpd_coef=mpd_coef, output_path=output_path, saveplot=plot, min_level_distance=min_level_distance, max_level_distance=max_level_distance, 
         min_model_score=min_model_score, info_lost_range_high= info_lost_range_high, info_lost_range_low=info_lost_range_low, info_lost_ratio_thresh=info_lost_ratio_thresh)
 
     # estimate baseline and level distance, also return models

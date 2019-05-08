@@ -16,8 +16,8 @@ import pandas as pd
 
 class mecan:
     def __init__(self, bins_per_interval=20, intervals=4, interval_step=2,  peak_thresh=1000, segment_thresh=3, mpd_coef=0.1,
-     output_path=None, plot=False, verbose=False, ranking_method='ass', min_level_distance=0.3, max_level_distance=1.3, min_model_score=9,
-     info_lost_range_high = 0.8, info_lost_range_low = 0.2, info_lost_ratio_thresh = 0.3 ):
+     output_path=None, showplot=False, verbose=False, ranking_method='ass', min_level_distance=0.3, max_level_distance=1.3, min_model_score=9,
+     info_lost_range_high = 0.8, info_lost_range_low = 0.2, info_lost_ratio_thresh = 0.3, saveplot=False ):
 
         self.bins_per_interval = bins_per_interval
         self.intervals = intervals
@@ -26,7 +26,8 @@ class mecan:
         self.segment_thresh  = segment_thresh
         self.mpd_coef = mpd_coef
         self.output_path = output_path
-        self.plot = plot
+        self.showplot = showplot
+        self.saveplot = saveplot
         self.verbose = verbose
         self.ranking_method = ranking_method
         self.min_level_distance=min_level_distance
@@ -62,7 +63,7 @@ class mecan:
     # Hard coded varaiables
     # intervals = 4, 0 - 5 copies
     # segment_thresh = 3, minimumn number of probes of a segment
-    def computePeaks(self, segments, bins_per_interval=None, plot=False, saveplot=False):
+    def computePeaks(self, segments, bins_per_interval=None, showplot=False, saveplot=False):
 
         if bins_per_interval is None:
             bins_per_interval = self.bins_per_interval
@@ -114,7 +115,7 @@ class mecan:
         
 
         # plot
-        if plot or saveplot:
+        if showplot or saveplot:
             plt.figure(figsize=(30,5))
             plt.xticks(rotation=70)
             plt.bar(bin_scales, segbin, width=bin_size/2, tick_label= np.round(bin_scales, 2))
@@ -128,7 +129,7 @@ class mecan:
                     plt.savefig(os.path.join(self.output_path, 'histogram.pdf'), bbox_inches='tight')
                 except Exception as e:
                     print(e)
-            if plot:
+            if showplot:
                 plt.show()
 
                  
@@ -511,7 +512,7 @@ class mecan:
 
     # main entrance
     def run(self, segments):
-        peaks = self.computePeaks(segments, plot=self.plot, saveplot=self.output_path)
+        peaks = self.computePeaks(segments, showplot=self.showplot, saveplot=self.saveplot)
         if len(peaks) >1:
             models = self.integrateScores(segments)
             models = models.round(6)
