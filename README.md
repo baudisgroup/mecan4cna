@@ -46,7 +46,7 @@ Options:
   -i, --input_file FILENAME       The input file.
   -o, --output_path TEXT          The path for output files.
   -n, --normalize                 Calibrate and normalize the input file.
-  -p, --plot                      Whether to show the signal histogram.
+  -p, --plot                      Whether to save the signal histogram.
   -b, --bins_per_interval INTEGER RANGE
                                   The number of bins in each copy number
                                   interval.
