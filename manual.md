@@ -70,9 +70,9 @@ GSM378022	3	48603	8994748	1469	0.0544
 ```
 -o, --output_path TEXT
 ```
-4 files will be created in the output path. If the mecan fails to detect anything, only 1 file will be created:
+4 files will be created in the output path. If mecan fails to detect anything, only 1 file will be created:
 
-- baseNdistance.txt : contains the estimated baseline and level distance.
+- base_level.txt : contains the estimated baseline and level distance.
 - histogram.pdf : a visual illustration of signal distributions.
 - models.tsv : a tab separated table that details all information of all models.
 - peaks.tsv : a tab separated table shows the determined signal peaks and their relative DNA levels compared to the baseline.
@@ -85,7 +85,7 @@ Users can change these parameters according to their needs.
 ```
 -n, --normalize 
 ```
-A flag option, when specified, the input file will be normalized as a separated file.
+A flag option, when specified, the input file will also be normalized and saved as a separated file.
 
 ### plot
 ```
@@ -156,22 +156,22 @@ The minimum value of a model score. Default is 9.
 ```
 --info_lost_range_low FLOAT
 ```
-The low limit of information lost range. Default is 0.2.
+The bottom limit of information lost range. Default is 0.2.
 
 ### Information lost range high
 ```
 --info_lost_range_high FLOAT 
 ```
-The low limit of information lost range. Default is 0.8.
+The upper limit of information lost range. Default is 0.8.
 
 ### Information lost ratio threshold
 ```
 --info_lost_ratio_thresh FLOAT 
 ```
-Models with information lost ration under this threshold will be abandoned. When there are no better solutions, this limitation is ignored.  
+Models with information lost ration below this threshold will be abandoned. When there are no better solutions, this limitation is ignored.  
 
 ### Scaler of level distance in normalization
 ```
 --ld_scaler FLOAT
 ```
-In normalization, scaling down the level distance to have a loose condition that includes more segments, or scaling up to have a strict condition that includes fewer segments. The default value is 0.8 
+In normalization, scaling down the level distance to have a loose condition that includes more segments, or scaling up to have a strict condition that includes fewer segments. The default value is 1. 

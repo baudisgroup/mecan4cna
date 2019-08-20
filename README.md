@@ -100,16 +100,16 @@ GSM378022	3	48603	8994748	1469	0.0544
 
 ### Output files
 
-4 files will be created in the output path. If the mecan fails to detect anything (not enough aberrant segments or no valid models), only the histogram will be created:
+4 files will be created in the output path. If mecan fails to detect anything (not enough aberrant segments or no valid models), only the histogram will be created:
 
-- baseNdistance.txt : contains the estimated baseline and level distance.
+- base_level.txt : contains the estimated baseline and level distance.
 - histogram.pdf : a visual illustration of signal distributions.
 - models.tsv : a tab separated table that details all information of all models.
 - peaks.tsv : a tab separated table shows the determined signal peaks and their relative DNA levels compared to the baseline.
 
 
 ## Calibration and normalization
-With the `-n` flag, the input file can be normalized and saved as `normalized.tsv`.
+With the `-n` flag, the input file will be normalized and saved as `normalized.tsv`.
 
 ## Import as a python library
 
