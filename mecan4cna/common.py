@@ -129,21 +129,31 @@ def file2list(fin):
     return ls
 
 # calibrate and normalize the input segments
-def normalize(segments, baseline, level_distance, outpath, scaler=0.8):
+def normalize(segments, baseline, level_distance, outpath=None, scaler=1):
+    norm_segs = []
     offset = baseline -2
     level_distance = level_distance * scaler
-    outpath = os.path.join(outpath, 'normalized.tsv')
-    with open(outpath, 'w') as fo:
-        print('{}\t{}\t{}\t{}\t{}'.format('chromosome', 'start','end', 'probes', 'value'), file=fo)
-        for cna in segments:
-            sig = 2**cna['value'] * 2
-            sig = abs(sig + offset)
-            sig = ( (sig-2)/level_distance ) + 2
-            if sig <= 0:
-                sig = 0.1
-            value = round(np.log2(sig/2), 4)
-            
-            print('{}\t{}\t{}\t{}\t{}'.format(cna['chro'], cna['start'],cna['end'], cna['probes'], value), file=fo)
+
+    for cna in segments:
+        sig = 2**cna['value'] * 2
+        sig = abs(sig - offset)
+        sig = ( (sig-2)/level_distance ) + 2
+        if sig <= 0:
+            sig = 0.1
+        value = round(np.log2(sig/2), 4)
+        
+        norm_cna = cna.copy()
+        norm_cna['value'] = value
+        norm_segs.append(norm_cna)
+
+    if outpath:
+        outpath = os.path.join(outpath, 'normalized.tsv')
+        with open(outpath, 'w') as fo:
+            print('{}\t{}\t{}\t{}\t{}'.format('chromosome', 'start','end', 'probes', 'value'), file=fo)
+            for cna in norm_segs:
+                print('{}\t{}\t{}\t{}\t{}'.format(cna['chro'], cna['start'],cna['end'], cna['probes'], value), file=fo)
+
+    return norm_segs
 
 
 

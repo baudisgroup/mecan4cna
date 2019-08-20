@@ -512,48 +512,51 @@ class mecan:
 
     # main entrance
     def run(self, segments):
-        peaks = self.computePeaks(segments, showplot=self.showplot, saveplot=self.saveplot)
-        if len(peaks) >1:
-            models = self.integrateScores(segments)
-            models = models.round(6)
-            if len(models) == 0:
+        try:
+            peaks = self.computePeaks(segments, showplot=self.showplot, saveplot=self.saveplot)
+            if len(peaks) >1:
+                models = self.integrateScores(segments)
+                models = models.round(6)
+                if len(models) == 0:
+                    if self.verbose:
+                        print('No models.')
+                    return ('No models.',)
+
+
+
+                base_bin, best_vote = self.determineBaseline(models)
+
+
+                thresh = self.determineThresh(models)
+                
+                levels = peaks.loc[:,['bin', 'value']]
+                levels['relative_level'] = round((levels['bin'] - base_bin) / thresh).astype(int)
+                
                 if self.verbose:
-                    print('No models.')
-                return ('No models.',)
+                    print(peaks)
+                    print(models)
+                    # print('Base table:\n {}'.format(basedf))
+                    print("Baseline: {}".format(base_bin))
+                    print('Level distance: {}'.format(thresh))
+
+                if self.output_path:
+                    with open(os.path.join(self.output_path, 'base_level.txt'), 'w') as fo:
+                        # print('Interval with minimum Σe:\t{}'.format(base_candidates), file=fo)
+                        print('Estimated baseline:\t{}'.format(base_bin), file=fo)
+                        print('Estimated level distance:\t{}'.format(thresh), file=fo)
+
+                    models.to_csv(os.path.join(self.output_path, 'models.tsv'), sep='\t', index=False, float_format='%.4f')
+                    # basedf.to_csv(os.path.join(self.output_path, 'candidates.tsv'), sep='\t', index=False, float_format='%.2f')
+                    levels.to_csv(os.path.join(self.output_path, 'peaks.tsv'), sep='\t', index=False, float_format='%.2f')
 
 
-
-            base_bin, best_vote = self.determineBaseline(models)
-
-
-            thresh = self.determineThresh(models)
-            
-            levels = peaks.loc[:,['bin', 'value']]
-            levels['relative_level'] = round((levels['bin'] - base_bin) / thresh).astype(int)
-            
-            if self.verbose:
-                print(peaks)
-                print(models)
-                # print('Base table:\n {}'.format(basedf))
-                print("Baseline: {}".format(base_bin))
-                print('Level distance: {}'.format(thresh))
-
-            if self.output_path:
-                with open(os.path.join(self.output_path, 'base_level.txt'), 'w') as fo:
-                    # print('Interval with minimum Σe:\t{}'.format(base_candidates), file=fo)
-                    print('Estimated baseline:\t{}'.format(base_bin), file=fo)
-                    print('Estimated level distance:\t{}'.format(thresh), file=fo)
-
-                models.to_csv(os.path.join(self.output_path, 'models.tsv'), sep='\t', index=False, float_format='%.4f')
-                # basedf.to_csv(os.path.join(self.output_path, 'candidates.tsv'), sep='\t', index=False, float_format='%.2f')
-                levels.to_csv(os.path.join(self.output_path, 'peaks.tsv'), sep='\t', index=False, float_format='%.2f')
-
-
-            return (base_bin, thresh, models, best_vote, levels)
-        else:
-            if self.verbose:
-                print('Not enough aberrant segments.')
-            return ('Not enough aberrant segments.',)
+                return (base_bin, thresh, models, best_vote, levels)
+            else:
+                if self.verbose:
+                    print('Not enough aberrant segments.')
+                return ('Not enough aberrant segments.',)
+        except Exception as e:
+            return(print(e))
 
 
 
