@@ -30,8 +30,8 @@ import subprocess
 @click.option('--min_level_distance', type=click.FLOAT, default=0.3, help='The minimum value of level distance.')
 @click.option('--min_model_score', type=click.IntRange(0,None), default=9, help='The minimum value of the model score.')
 @click.option('--info_lost_ratio_thresh', type=click.FLOAT, default=0.3, help='The threshold of information lost ratio.')
-@click.option('--info_lost_range_low', type=click.FLOAT, default=0.2, help='The low end of information lost range.')
-@click.option('--info_lost_range_high', type=click.FLOAT, default=0.8, help='The high end of information lost range.')
+@click.option('--info_lost_range_low', type=click.FLOAT, default=0.3, help='The low end of information lost range.')
+@click.option('--info_lost_range_high', type=click.FLOAT, default=0.7, help='The high end of information lost range.')
 @click.option('--ld_scaler', type=click.FLOAT, default=1, help='The scaler of level distance in normalization.')
 def cli(input_file,output_path,plot,bins_per_interval,intervals,peak_thresh,segment_thresh,model_steps,mpd_coef,max_level_distance,min_level_distance,
         min_model_score, info_lost_ratio_thresh, info_lost_range_low,info_lost_range_high, demo, normalize, ld_scaler ):

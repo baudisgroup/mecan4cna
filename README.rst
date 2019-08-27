@@ -70,7 +70,7 @@ General Usage
       -i, --input_file FILENAME       The input file.
       -o, --output_path TEXT          The path for output files.
       -n, --normalize                 Calibrate and normalize the input file.
-      -p, --plot                      Whether to show the signal histogram.
+      -p, --plot                      Whether to save the signal histogram.
       -b, --bins_per_interval INTEGER RANGE
                                       The number of bins in each copy number
                                       interval.
@@ -126,12 +126,11 @@ An example:
 Output files
 ~~~~~~~~~~~~
 
-4 files will be created in the output path. If the mecan fails to detect
+4 files will be created in the output path. If mecan fails to detect
 anything (not enough aberrant segments or no valid models), only the
 histogram will be created:
 
--  baseNdistance.txt : contains the estimated baseline and level
-   distance.
+-  base_level.txt : contains the estimated baseline and level distance.
 -  histogram.pdf : a visual illustration of signal distributions.
 -  models.tsv : a tab separated table that details all information of
    all models.
@@ -141,7 +140,7 @@ histogram will be created:
 Calibration and normalization
 -----------------------------
 
-With the ``-n`` flag, the input file can be normalized and saved as
+With the ``-n`` flag, the input file will be normalized and saved as
 ``normalized.tsv``.
 
 Import as a python library

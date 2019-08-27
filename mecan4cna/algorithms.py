@@ -17,7 +17,7 @@ import pandas as pd
 class mecan:
     def __init__(self, bins_per_interval=20, intervals=4, interval_step=2,  peak_thresh=1000, segment_thresh=3, mpd_coef=0.1,
      output_path=None, showplot=False, verbose=False, ranking_method='ass', min_level_distance=0.3, max_level_distance=1.3, min_model_score=9,
-     info_lost_range_high = 0.8, info_lost_range_low = 0.2, info_lost_ratio_thresh = 0.3, saveplot=False ):
+     info_lost_range_high = 0.7, info_lost_range_low = 0.3, info_lost_ratio_thresh = 0.3, saveplot=False ):
 
         self.bins_per_interval = bins_per_interval
         self.intervals = intervals
@@ -145,8 +145,13 @@ class mecan:
     def levelScore(self, peaks, base, thresh ):
         levels = peaks.loc[:,['bin', 'value']]
         levels['relative_level'] = round((levels['bin'] - base) / abs(base-thresh)).astype(int)
-        dup_sum = sum(levels[levels.relative_level >0].relative_level.drop_duplicates())
-        del_sum = sum(levels[levels.relative_level <0].relative_level.drop_duplicates())
+        # old counting, add up levels
+        # dup_sum = sum(levels[levels.relative_level >0].relative_level.drop_duplicates())
+        # del_sum = sum(levels[levels.relative_level <0].relative_level.drop_duplicates())
+
+        # new counting, using the highest level
+        dup_sum = max(levels.relative_level)
+        del_sum = min(levels.relative_level)
         # return [sum(levels.relative_level), dup_sum, del_sum]
         return [dup_sum+del_sum, dup_sum, del_sum]
 
@@ -263,7 +268,7 @@ class mecan:
         mirror = df_models.rename(columns={'base_bin':'thresh_bin', 'thresh_bin':'base_bin', 'base_value':'thresh_value','thresh_value':'base_value'})
 
         mirrored_models = pd.concat([df_models, mirror], sort=False).sort_values(by='rank').reset_index(drop=True)
-        levelsums= pd.DataFrame(mirrored_models.apply(lambda x: self.levelScore(df_peaks, x[1],x[2]), axis=1).tolist(), columns=['levelScore', 'dupLevels', 'delLevels'])
+        levelsums= pd.DataFrame(mirrored_models.apply(lambda x: self.levelScore(df_peaks, x[2],x[3]), axis=1).tolist(), columns=['levelScore', 'dupLevels', 'delLevels'])
         mirrored_models = pd.concat([mirrored_models,levelsums], axis=1)
 
         # compute mean and std of levelscore
@@ -436,70 +441,102 @@ class mecan:
 
 
 
-
-
-    # # determine the final baseline using consensus strategy
-    # def determineBase(self, df_models):
-    #     base_ranks = df_models.loc[df_models['ass_rank']<3,['base_bin', 'ass_rank']]
-    #     thresh_ranks = df_models.loc[df_models['ass_rank']<3,['thresh_bin', 'ass_rank']]
-    #     thresh_ranks = thresh_ranks.rename(columns={'thresh_bin':'base_bin'})
-    #     bin_ranks = pd.concat([base_ranks,thresh_ranks])
-    #     bin_ranks = bin_ranks.rename(columns={'base_bin':'bin'})
-        
-    #     # by score average, but if a bin only shows up once in rank 0, it always get highest score. Solution?
-    # #     bin_ranks = bin_ranks.groupby('bin').mean().sort_values(by='ass_rank')
-    #     # try counting, but when there are equal counts, what to to do? 
-    # #    bin_ranks = bin_ranks.groupby('bin').count().sort_values(by='ass_rank', ascending=False)
-
-    #     # combine both, comparison oder, count, value(probes)
-    #     bin_ranks_mean = bin_ranks.groupby('bin').mean().rename(columns={'ass_rank':'mean'})
-    #     bin_ranks_count = bin_ranks.groupby('bin').count().rename(columns={'ass_rank':'count'})
-        
-    #     return pd.merge(bin_ranks_mean, bin_ranks_count, how='left', on='bin')
-
-
-
-
-
     # determine the thresh level 
     def determineThresh(self, df_models):
         top_model = df_models.iloc[0,:]
         return round(abs(top_model['base_bin'] - top_model['thresh_bin']), 2)
 
 
-
+    # determine the final baseline using 3 weighted factors
     def determineBaseline(self, models):
 
         base_scores = {models.loc[0,'base_bin']:{}, models.loc[0,'thresh_bin']:{}}
 
         # levelScore
+        # most balanced model gets highest
         if len(models) > 1 and models.loc[0,'rank'] == models.loc[1,'rank']:
             # compute level thresh
             level_mean = np.mean(models.levelScore)
             level_std = np.std(models.levelScore)
-            level_thresh = max(abs(level_mean - level_std), abs(level_mean + level_std))
-            if level_thresh < self.min_model_score:
-                level_thresh = self.min_model_score
+            # level_thresh = max(abs(level_mean - level_std), abs(level_mean + level_std))
 
-            ref_level = max(level_thresh - models.loc[0,'levelScore'], level_thresh - models.loc[1,'levelScore'] )
-            base_scores[models.loc[0,'base_bin']]['level_score'] = (level_thresh - models.loc[0,'levelScore']) / ref_level
-            base_scores[models.loc[1,'base_bin']]['level_score'] = (level_thresh - models.loc[1,'levelScore']) / ref_level
+            # old formula
+            # if level_thresh < self.min_model_score:
+            #     level_thresh = self.min_model_score
+
+            # ref_level = max(level_thresh - models.loc[0,'levelScore'], level_thresh - models.loc[1,'levelScore'] )
+            # base_scores[models.loc[0,'base_bin']]['level_score'] = (level_thresh - abs(models.loc[0,'levelScore'])) / ref_level
+            # base_scores[models.loc[1,'base_bin']]['level_score'] = (level_thresh - abs(models.loc[1,'levelScore'])) / ref_level
+
+            #  formula 1
+            # base_level_score = abs(abs(models.loc[0,'levelScore']) - level_mean) / level_thresh
+            # thresh_level_score = abs(abs(models.loc[1,'levelScore']) - level_mean) / level_thresh
+            # ref_level = min(base_level_score, thresh_level_score )
+            # base_scores[models.loc[0,'base_bin']]['level_score'] = 1 / (base_level_score / ref_level)
+            # base_scores[models.loc[1,'base_bin']]['level_score'] = 1 /(thresh_level_score / ref_level)
+
+            # formula 2
+            level_thresh = 2*level_std 
+            base_level_score = abs(models.loc[0,'levelScore'] - level_mean) / level_thresh
+            if base_level_score > 1:
+                base_level_score = 1
+            thresh_level_score = abs(models.loc[1,'levelScore'] - level_mean) / level_thresh
+            if thresh_level_score > 1:
+                thresh_level_score = 1
+
+            base_level_score = 1 - base_level_score
+            thresh_level_score = 1 - thresh_level_score
+
+            gap = 1 - max(base_level_score, thresh_level_score )
+            base_level_score = base_level_score + gap
+            thresh_level_score = thresh_level_score + gap
+
+
+            # old method of scaling to 1
+            # ref_level = max(base_level_score, thresh_level_score )
+
+            # if ref_level == 0:
+            #     base_level_score = 1
+            #     thresh_level_score = 1
+            # else:
+            #     base_level_score = (base_level_score / ref_level)
+            #     thresh_level_score = (thresh_level_score / ref_level)
+
+            base_scores[models.loc[0,'base_bin']]['level_score'] = base_level_score
+            base_scores[models.loc[1,'base_bin']]['level_score'] = thresh_level_score
         else:
             base_scores[models.loc[0,'base_bin']]['level_score'] = 1
             base_scores[models.loc[0,'thresh_bin']]['level_score'] = 0
         
 
-
+        # value score,
         # highest probe values
         ref_value = max(models.loc[0,'base_value'], models.loc[0,'thresh_value'])
         base_scores[models.loc[0,'base_bin']]['value_score'] = models.loc[0,'base_value'] / ref_value
         base_scores[models.loc[0,'thresh_bin']]['value_score'] = models.loc[0,'thresh_value'] / ref_value
 
-
+        # distance score
         # closet to 2
-        ref_dis = max(abs(2-abs(models.loc[0,'base_bin']-2)), abs(2-abs(models.loc[0,'thresh_bin']-2)))
-        base_scores[models.loc[0,'base_bin']]['dis_score'] = abs(2-abs(models.loc[0,'base_bin']-2)) / ref_dis
-        base_scores[models.loc[0,'thresh_bin']]['dis_score'] = abs(2-abs(models.loc[0,'thresh_bin']-2)) / ref_dis
+        
+        # the difference between scores is not high enough in this method
+        # ref_dis = max(abs(2-abs(models.loc[0,'base_bin']-2)), abs(2-abs(models.loc[0,'thresh_bin']-2)))
+        # base_scores[models.loc[0,'base_bin']]['dis_score'] = abs(2-abs(models.loc[0,'base_bin']-2)) / ref_dis
+        # base_scores[models.loc[0,'thresh_bin']]['dis_score'] = abs(2-abs(models.loc[0,'thresh_bin']-2)) / ref_dis
+
+        # new formula
+        base_dist = 1 - abs(models.loc[0,'base_bin']-2)
+        thresh_dist = 1 - abs(models.loc[0,'thresh_bin']-2)
+
+        if base_dist < 0:
+            base_dist = 0
+        if thresh_dist < 0:
+            thresh_dist = 0
+
+        ref_dis = max(base_dist, thresh_dist)
+        if ref_dis == 0:
+            ref_dis = 1
+        base_scores[models.loc[0,'base_bin']]['dis_score'] = base_dist / ref_dis
+        base_scores[models.loc[0,'thresh_bin']]['dis_score'] = thresh_dist / ref_dis        
 
         df_bscores = pd.DataFrame(base_scores)
         sums = df_bscores.sum(0)/3
