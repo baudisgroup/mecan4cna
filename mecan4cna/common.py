@@ -136,7 +136,7 @@ def normalize(segments, baseline, level_distance, outpath=None, scaler=1):
 
     for cna in segments:
         sig = 2**cna['value'] * 2
-        sig = abs(sig - offset)
+        sig = sig - offset
         sig = ( (sig-2)/level_distance ) + 2
         if sig <= 0:
             sig = 0.1
