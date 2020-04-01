@@ -27,13 +27,13 @@ See the [manual](https://github.com/baudisgroup/mecan4cna/blob/master/manual.md)
 ### Quick start
 
 ```
-mecan4can -i [SEGMENT_FILE] -o [OUTPUT_PATH]
+mecan4cna -i [SEGMENT_FILE] -o [OUTPUT_PATH]
 ```
 
 ### Demo mode
 
 ```
-mecan4can --demo
+mecan4cna --demo
 ```
 
 This will copy 5 example files to the current directory and run with default settings. It invokes the ```run_mecan_example.sh``` script, which will also be copied over and can be used as a template for customized analysis.
@@ -114,8 +114,8 @@ With the `-n` flag, the input file will be normalized and saved as `normalized.t
 ## Import as a python library
 
 ```python
-import mecan4can.algorithms as alg
-import mecan4can.common as comm
+import mecan.mecan4cna.algorithms as alg
+import mecan.mecan4cna.common as comm
 
 with open('examples\segment_example_1.tsv', 'r') as fin:
 	segments = comm.file2list(fin)
