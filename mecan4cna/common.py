@@ -151,7 +151,7 @@ def normalize(segments, baseline, level_distance, outpath=None, scaler=1):
         with open(outpath, 'w') as fo:
             print('{}\t{}\t{}\t{}\t{}'.format('chromosome', 'start','end', 'probes', 'value'), file=fo)
             for cna in norm_segs:
-                print('{}\t{}\t{}\t{}\t{}'.format(cna['chro'], cna['start'],cna['end'], cna['probes'], value), file=fo)
+                print('{}\t{}\t{}\t{}\t{}'.format(cna['chro'], cna['start'],cna['end'], cna['probes'], cna['value']), file=fo)
 
     return norm_segs
 

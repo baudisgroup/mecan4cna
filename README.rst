@@ -30,8 +30,8 @@ The easiest way is to install through pip:
 
 ::
 
-    pip install mecan4cna
-    mecan4cna --help
+   pip install mecan4cna
+   mecan4cna --help
 
 How to use
 ----------
@@ -45,14 +45,14 @@ Quick start
 
 ::
 
-    mecan4can -i [SEGMENT_FILE] -o [OUTPUT_PATH]
+   mecan4cna -i [SEGMENT_FILE] -o [OUTPUT_PATH]
 
 Demo mode
 ~~~~~~~~~
 
 ::
 
-    mecan4can --demo
+   mecan4cna --demo
 
 This will copy 5 example files to the current directory and run with
 default settings. It invokes the ``run_mecan_example.sh`` script, which
@@ -64,36 +64,36 @@ General Usage
 
 ::
 
-    Usage: mecan4cna [OPTIONS]
+   Usage: mecan4cna [OPTIONS]
 
-    Options:
-      -i, --input_file FILENAME       The input file.
-      -o, --output_path TEXT          The path for output files.
-      -n, --normalize                 Calibrate and normalize the input file.
-      -p, --plot                      Whether to save the signal histogram.
-      -b, --bins_per_interval INTEGER RANGE
-                                      The number of bins in each copy number
-                                      interval.
-      -v, --intervals INTEGER RANGE   The number of copy number intervals.
-      --demo                          Copy example files and run a demo script in
-                                      the current directory.
-      -pt, --peak_thresh INTEGER RANGE
-                                      The minimum probes of a peak.
-      -st, --segment_thresh INTEGER RANGE
-                                      The minimum probes of a segment.
-      --model_steps INTEGER RANGE     The incremental step size in modeling.
-      --mpd_coef FLOAT                Minimum Peak Distance coefficient in peak
-                                      detection.
-      --max_level_distance FLOAT      The maximum value of level distance.
-      --min_level_distance FLOAT      The minimum value of level distance.
-      --min_model_score INTEGER RANGE
-                                      The minimum value of the model score.
-      --info_lost_ratio_thresh FLOAT  The threshold of information lost ratio.
-      --info_lost_range_low FLOAT     The low end of information lost range.
-      --info_lost_range_high FLOAT    The high end of information lost range.
-      --ld_scaler FLOAT               The scaler of level distance in
-                                      normalization.
-      --help                          Show this message and exit.
+   Options:
+     -i, --input_file FILENAME       The input file.
+     -o, --output_path TEXT          The path for output files.
+     -n, --normalize                 Calibrate and normalize the input file.
+     -p, --plot                      Whether to save the signal histogram.
+     -b, --bins_per_interval INTEGER RANGE
+                                     The number of bins in each copy number
+                                     interval.
+     -v, --intervals INTEGER RANGE   The number of copy number intervals.
+     --demo                          Copy example files and run a demo script in
+                                     the current directory.
+     -pt, --peak_thresh INTEGER RANGE
+                                     The minimum probes of a peak.
+     -st, --segment_thresh INTEGER RANGE
+                                     The minimum probes of a segment.
+     --model_steps INTEGER RANGE     The incremental step size in modeling.
+     --mpd_coef FLOAT                Minimum Peak Distance coefficient in peak
+                                     detection.
+     --max_level_distance FLOAT      The maximum value of level distance.
+     --min_level_distance FLOAT      The minimum value of level distance.
+     --min_model_score INTEGER RANGE
+                                     The minimum value of the model score.
+     --info_lost_ratio_thresh FLOAT  The threshold of information lost ratio.
+     --info_lost_range_low FLOAT     The low end of information lost range.
+     --info_lost_range_high FLOAT    The high end of information lost range.
+     --ld_scaler FLOAT               The scaler of level distance in
+                                     normalization.
+     --help                          Show this message and exit.
 
 Required options are:
 
@@ -116,12 +116,12 @@ An example:
 
 ::
 
-    id  chro    start   end num_probes  seg_mean
-    GSM378022   1   775852  143752373   9992    0.025
-    GSM378022   1   143782024   214220966   6381    0.1607
-    GSM378022   2   88585000    144628991   4256    0.0131
-    GSM378022   2   144635510   146290468   146 0.1432
-    GSM378022   3   48603   8994748 1469    0.0544
+   id  chro    start   end num_probes  seg_mean
+   GSM378022   1   775852  143752373   9992    0.025
+   GSM378022   1   143782024   214220966   6381    0.1607
+   GSM378022   2   88585000    144628991   4256    0.0131
+   GSM378022   2   144635510   146290468   146 0.1432
+   GSM378022   3   48603   8994748 1469    0.0544
 
 Output files
 ~~~~~~~~~~~~
@@ -148,13 +148,13 @@ Import as a python library
 
 .. code:: python
 
-    import mecan4can.algorithms as alg
-    import mecan4can.common as comm
+   import mecan.mecan4cna.algorithms as alg
+   import mecan.mecan4cna.common as comm
 
-    with open('examples\segment_example_1.tsv', 'r') as fin:
-        segments = comm.file2list(fin)
-    m = alg.mecan()
-    r = m.run(segments)
+   with open('examples\segment_example_1.tsv', 'r') as fin:
+       segments = comm.file2list(fin)
+   m = alg.mecan()
+   r = m.run(segments)
 
 Common problems
 ---------------

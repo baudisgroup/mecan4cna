@@ -5,7 +5,7 @@ def readme():
         return f.read()
 
 setup(name = 'mecan4cna',
-     version = '0.27',
+     version = '0.28',
      description = 'Minimum Error Calibration and Normalization for Copy Number Analysis',
      long_description = readme(),
      license = 'MIT',
