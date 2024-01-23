@@ -22,8 +22,8 @@ setup(name = 'mecan4cna',
     keywords = 'calibration normalization copy number',
     packages = ['mecan4cna'],
     install_requires = [
-        'click',
-        'pandas',
+        'click=7.1.2',
+        'pandas==1.1.2',
         'numpy',
         'matplotlib==2.0.2'
         ],
